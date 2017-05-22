@@ -110,27 +110,13 @@ function updateDetails(details, shippingAddress, callback) {
         selected: true,
         pending: false,
     };
-    if (shippingAddress.country === 'US') {
-        if (shippingAddress.region === 'CA') {
-            shippingOption.id = 'californiaFreeShipping';
-            shippingOption.label = 'Free shipping in California';
-            details.total.amount.value = '55.00';
-        } else {
+
             shippingOption.id = 'unitedStatesStandardShipping';
             shippingOption.label = 'Standard shipping in US';
             shippingOption.amount.value = '5.00';
             details.total.amount.value = '60.00';
-        }
         details.shippingOptions = [shippingOption];
         delete details.error;
-    } else {
-        // Don't ship outside of US for the purposes of this example.
-        shippingOption.label = 'Shipping';
-        shippingOption.pending = true;
-        details.total.amount.value = '55.00';
-        details.error = 'Cannot ship outside of US.';
-        delete details.shippingOptions;
-    }
     details.displayItems.splice(1, 1, shippingOption);
     callback(details);
 }
@@ -204,21 +190,21 @@ payButtonWithShipping.setAttribute('style', 'display: none;');
 
 if (window.PaymentRequest) {
     let request = initPaymentRequest();
-    payButton.setAttribute('style', 'display: inline;');
+    payButton.setAttribute('style', 'display: block;');
     payButton.addEventListener('click', function() {
         onBuyClicked(request);
         request = initPaymentRequest();
     });
     let requestWithOptions = initPaymentRequestWithOptions();
-    payButtonWithOptions.setAttribute('style', 'display: inline;');
+    payButtonWithOptions.setAttribute('style', 'display: block;');
     payButtonWithOptions.addEventListener('click', function() {
         onBuyClicked(requestWithOptions);
         requestWithOptions = initPaymentRequestWithOptions();
     });
     let requestWithShipping = initPaymentRequestWithShipping();
-    payButtonWithShipping.setAttribute('style', 'display: inline;');
+    payButtonWithShipping.setAttribute('style', 'display: block;');
     payButtonWithShipping.addEventListener('click', function() {
-        onBuyClicked(requestWithOptions);
+        onBuyClicked(requestWithShipping);
         requestWithShipping = initPaymentRequestWithShipping();
     });
 } else {
