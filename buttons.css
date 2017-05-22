@@ -12,3 +12,9 @@ button {
     text-decoration: none;
     text-shadow: rgb(61, 118, 138) 0 1px 0;
 }
+@media (max-width: 600px) {
+    button {
+        width: 100%;
+        margin: 1em 0;
+    }
+}
