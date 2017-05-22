@@ -1,14 +1,14 @@
 button {
-    width: 300px;
+    width: 15em;
     box-shadow: rgb(39, 104, 115) 0 10px 14px -7px;
     background: linear-gradient(rgb(89, 155, 179) 5%, rgb(64, 140, 153) 100%) rgb(89, 155, 179);
-    border-radius: 8px;
+    border-radius: 0.5em;
     display: inline-block;
     cursor: pointer;
     color: rgb(255, 255, 255);
-    font-size: 20px;
+    font-size: 1.5em;
     font-weight: bold;
-    padding: 13px 32px;
+    padding: 1em;
     text-decoration: none;
     text-shadow: rgb(61, 118, 138) 0 1px 0;
 }
