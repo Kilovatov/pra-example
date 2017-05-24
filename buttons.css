@@ -1,5 +1,5 @@
 button {
-    width: 15em;
+    width: 100%;
     box-shadow: rgb(39, 104, 115) 0 10px 14px -7px;
     background: linear-gradient(rgb(89, 155, 179) 5%, rgb(64, 140, 153) 100%) rgb(89, 155, 179);
     border-radius: 0.5em;
@@ -9,12 +9,7 @@ button {
     font-size: 1.5em;
     font-weight: bold;
     padding: 1em;
+    margin: 1em 0;
     text-decoration: none;
     text-shadow: rgb(61, 118, 138) 0 1px 0;
-}
-@media (max-width: 600px) {
-    button {
-        width: 100%;
-        margin: 1em 0;
-    }
 }
