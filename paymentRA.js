@@ -38,15 +38,15 @@ function initPaymentRequestWithOptions() {
     }];
 
     let details = {
-        total: {label: 'Donation', amount: {currency: 'USD', value: '55.00'}},
+        total: {label: 'Donation', amount: {currency: 'EUR', value: '55.00'}},
         displayItems: [
             {
                 label: 'Original donation amount',
-                amount: {currency: 'USD', value: '65.00'},
+                amount: {currency: 'EUR', value: '65.00'},
             },
             {
                 label: 'Friends and family discount',
-                amount: {currency: 'USD', value: '-10.00'},
+                amount: {currency: 'EUR', value: '-10.00'},
             },
         ],
     };
@@ -78,15 +78,27 @@ function initPaymentRequestWithShipping() {
                 amount: {currency: 'USD', value: '65.00'},
             },
             {
-                label: 'Shipping',
-                amount: {currency: 'USD', value: '0.00'},
-                pending: true,
-            },
-            {
                 label: 'Friends and family discount',
                 amount: {currency: 'USD', value: '-10.00'},
             },
+            {
+                label: 'Shipping',
+                amount: {currency: 'USD', value: '0.00'},
+                pending: true,
+            }
         ],
+        shippingOptions: [
+        {
+            id: 'standard',
+            label: 'Standard shipping',
+            amount: {currency: 'USD', value: '0.00'},
+        },
+        {
+            id: 'express',
+            label: 'Express shipping',
+            amount: {currency: 'USD', value: '12.00'}
+        },
+    ],
     };
 
     let options = {requestShipping: true};
@@ -94,51 +106,35 @@ function initPaymentRequestWithShipping() {
     let request = new PaymentRequest(supportedInstruments, details, options);
 
     request.addEventListener('shippingaddresschange', function(evt) {
-        evt.updateWith(new Promise(function(resolve) {
-            updateDetails(details, request.shippingAddress, resolve);
+        evt.updateWith(Promise.resolve(details));
+    });
+
+    request.addEventListener('shippingoptionchange', function(evt) {
+        evt.updateWith(new Promise(function(resolve, reject) {
+            updateDetails(details, request.shippingOption, resolve, reject);
         }));
     });
 
     return request;
 }
 
-function updateDetails(details, shippingAddress, callback) {
-    let shippingOption = {
-        id: '',
-        label: '',
-        amount: {currency: 'USD', value: '0.00'},
-        selected: true,
-        pending: false,
-    };
-
-            shippingOption.id = 'unitedStatesStandardShipping';
-            shippingOption.label = 'Standard shipping in US';
-            shippingOption.amount.value = '5.00';
-            details.total.amount.value = '60.00';
-        details.shippingOptions = [shippingOption];
-        delete details.error;
-    details.displayItems.splice(1, 1, shippingOption);
-    callback(details);
-}
-
-function addressToDictionary(address) {
-    if (address.toJSON) {
-        return address.toJSON();
+function updateDetails(details, shippingOption, resolve, reject) {
+    if (shippingOption === 'standard') {
+        selectedShippingOption = details.shippingOptions[0];
+        otherShippingOption = details.shippingOptions[1];
+        details.total.amount.value = '55.00';
+    } else if (shippingOption === 'express') {
+        selectedShippingOption = details.shippingOptions[1];
+        otherShippingOption = details.shippingOptions[0];
+        details.total.amount.value = '67.00';
+    } else {
+        reject('Unknown shipping option \'' + shippingOption + '\'');
+        return;
     }
-
-    return {
-        recipient: address.recipient,
-        organization: address.organization,
-        addressLine: address.addressLine,
-        dependentLocality: address.dependentLocality,
-        city: address.city,
-        region: address.region,
-        postalCode: address.postalCode,
-        sortingCode: address.sortingCode,
-        country: address.country,
-        languageCode: address.languageCode,
-        phone: address.phone,
-    };
+    selectedShippingOption.selected = true;
+    otherShippingOption.selected = false;
+    details.displayItems.splice(2, 1, selectedShippingOption);
+    resolve(details);
 }
 
 function onBuyClicked(request) {
@@ -146,7 +142,7 @@ function onBuyClicked(request) {
         sendPaymentToServer(instrumentResponse);
     })
         .catch(function(err) {
-            ChromeSamples.setStatus(err);
+            request.complete('fail');
         });
 }
 
@@ -158,7 +154,7 @@ function sendPaymentToServer(instrumentResponse) {
                     instrumentToJsonString(instrumentResponse);
             })
             .catch(function(err) {
-                ChromeSamples.setStatus(err);
+                instrumentResponse.complete('fail');
             });
     }, 2000);
 }
